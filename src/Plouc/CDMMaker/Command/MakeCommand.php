@@ -29,8 +29,10 @@ class MakeCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        // load config file, no validation
         $config = Yaml::parse('./config.yml');
 
+        // establish connection to mysql
         $pdo = new PDO(
             sprintf('mysql:host=%s;dbname=%s', $config['connection']['host'], 'information_schema'),
             $config['connection']['user'],
@@ -40,6 +42,7 @@ class MakeCommand extends Command
             )
         );
 
+        // query db table columns
         $columnsStmt = $pdo->prepare('SELECT * FROM information_schema.columns AS c WHERE c.table_schema = :db ORDER BY table_name ASC, ordinal_position ASC');
         $columnsStmt->execute(array(
             ':db' => $config['db'],
@@ -47,16 +50,24 @@ class MakeCommand extends Command
         $columns = $columnsStmt->fetchAll(PDO::FETCH_ASSOC);
 
         $table = null;
+        $tableName = null;
         foreach ($columns as $column) {
-            if ($column['TABLE_NAME'] != $table) {
-                $table = $column['TABLE_NAME'];
-                $this->tables[$table] = array();
+            if ($column['TABLE_NAME'] != $tableName) {
+                if ($table != null) {
+                    $this->tables[] = $table;
+                }
+                $tableName = $column['TABLE_NAME'];
+                $table = array(
+                    'name'   => $tableName,
+                    'fields' => array(),
+                );
             }
-            $this->tables[$table][$column['COLUMN_NAME']] = array(
-                'id'   => sprintf('%s.%s', $table, $column['COLUMN_NAME']),
+            $table['fields'][$column['COLUMN_NAME']] = array(
+                'id'   => sprintf('%s.%s', $tableName, $column['COLUMN_NAME']),
                 'type' => $column['COLUMN_TYPE'],
             );
         }
+        $this->tables[] = $table;
 
 
         $keysStmt = $pdo->prepare('SELECT * FROM information_schema.key_column_usage AS kcu WHERE kcu.constraint_schema = :db AND kcu.referenced_table_name IS NOT NULL ORDER BY table_name');
@@ -66,12 +77,16 @@ class MakeCommand extends Command
         $keys = $keysStmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($keys as $key) {
-            $this->keys[] = array(
+            $this->relations[] = array(
                 'source' => sprintf('%s.%s', $key['TABLE_NAME'],            $key['COLUMN_NAME']),
                 'target' => sprintf('%s.%s', $key['REFERENCED_TABLE_NAME'], $key['REFERENCED_COLUMN_NAME']),
             );
         }
 
-        //print_r($this->keys);
+        $schema = array(
+            'tables'    => $this->tables,
+            'relations' => $this->relations
+        );
+        file_put_contents('./schema.json', json_encode($schema));
     }
 }
