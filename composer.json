@@ -1,5 +1,5 @@
 {
-    "name": "CDM-maker",
+    "name": "plouc/cdm-maker",
     "authors": [
         {
             "name": "Raphaël Benitte",
@@ -15,6 +15,7 @@
         "symfony/finder": "2.1.x-dev",
         "symfony/filesystem": "2.1.x-dev",
         "symfony/yaml": "2.1.x-dev",
-        "symfony/console": "2.1.x-dev"
+        "symfony/console": "2.1.x-dev",
+        "twig/twig": "*"
     }
 }

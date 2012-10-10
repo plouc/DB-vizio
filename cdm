@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+
+require_once 'vendor/autoload.php';
+
+use Symfony\Component\Console\Application;
+use Plouc\CDMMaker\Command\MakeCommand;
+
+$application = new Application();
+$application->add(new MakeCommand);
+$application->run();
+
+if (!is_file('config.yml')) {
+    throw new \RuntimeException('please configure this project');
+}
+
+$options = \Symfony\Component\Yaml\Yaml::parse('config.yml');
+
+var_dump($options);
