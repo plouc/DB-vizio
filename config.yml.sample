@@ -1,5 +1,5 @@
-db:
+db: DB_NAME
+connection:
   host: HOST
   user: USER
-  pwd:  PASS
-  db:   DB
+  pwd:  PWD
