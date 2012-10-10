@@ -1,0 +1,20 @@
+{
+    "name": "CDM-maker",
+    "authors": [
+        {
+            "name": "Raphaël Benitte",
+            "email": "benitteraphel@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Plouc": ["src"]
+        }
+    },
+    "require": {
+        "symfony/finder": "2.1.x-dev",
+        "symfony/filesystem": "2.1.x-dev",
+        "symfony/yaml": "2.1.x-dev",
+        "symfony/console": "2.1.x-dev"
+    }
+}
