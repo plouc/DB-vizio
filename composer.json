@@ -15,7 +15,6 @@
         "symfony/finder": "2.1.x-dev",
         "symfony/filesystem": "2.1.x-dev",
         "symfony/yaml": "2.1.x-dev",
-        "symfony/console": "2.1.x-dev",
-        "twig/twig": "*"
+        "symfony/console": "2.1.x-dev"
     }
 }

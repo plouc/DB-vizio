@@ -59,10 +59,12 @@ class MakeCommand extends Command
                 $tableName = $column['TABLE_NAME'];
                 $table = array(
                     'name'   => $tableName,
+                    'size'   => 12,
                     'fields' => array(),
                 );
             }
-            $table['fields'][$column['COLUMN_NAME']] = array(
+            $table['fields'][] = array(
+                'name' => $column['COLUMN_NAME'],
                 'id'   => sprintf('%s.%s', $tableName, $column['COLUMN_NAME']),
                 'type' => $column['COLUMN_TYPE'],
             );
