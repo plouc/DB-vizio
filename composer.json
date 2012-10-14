@@ -1,5 +1,5 @@
 {
-    "name": "plouc/cdm-maker",
+    "name": "plouc/dbvizio",
     "authors": [
         {
             "name": "Raphaël Benitte",
@@ -8,7 +8,7 @@
     ],
     "autoload": {
         "psr-0": {
-            "Plouc": ["src"]
+            "DBVizio": ["src"]
         }
     },
     "require": {

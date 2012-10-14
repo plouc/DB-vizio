@@ -1,6 +1,6 @@
 <?php
 
-namespace Plouc\CDMMaker\Command;
+namespace Plouc\DBVizio\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,7 +19,7 @@ class MakeCommand extends Command
 
     public function configure()
     {
-        $this->setName('cdm:make');
+        $this->setName('dbvizio:make');
         $this->setDescription('generate the cdm');
     }
 

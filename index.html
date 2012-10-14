@@ -1,134 +1,26 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>CDM-maker</title>
-        <style>
-            html, body {
-                font-size: 11px;
-                font-family: consolas, "courier new", monospace;
-                color: #333;
-            }
-            * {
-                margin: 0;
-                padding: 0;
-            }
-            body {
-                background: #ddd;
-            }
-            rect {
-                cursor: pointer;
-                fill: #fff;
-                stroke: #333;
-                stroke-width: 0.3px;
-            }
-            .table-header {
-                color: #fff;
-            }
-            .table-header rect {
-                fill: #333;
-            }
-        </style>
+        <title>DBvizio</title>
+        <link rel="stylesheet" type="text/css" href="public/normalize.css"/>
+        <link rel="stylesheet" type="text/css" href="public/cdm.css"/>
+        <link rel="stylesheet" type="text/css" href="public/jquery-ui-1.9.0.custom.css"/>
+        <link rel="stylesheet" type="text/css" href="public/jquery.svg.css"/>
     </head>
     <body>
-        <div id="graph"></div>
-        <script src="http://d3js.org/d3.v2.js"></script>
-        <script>
-            var blockWidth = 200;
-
-            var currentPosition = {x: 0, y: 0};
-
-            function dragmove() {
-                currentPosition.x += d3.event.dx;
-                currentPosition.y += d3.event.dy;
-                d3.select(this).attr('transform', "translate(" + currentPosition.x + "," + currentPosition.y + ")");
-            }
-
-            var drag = d3.behavior.drag()
-                .on('drag', dragmove);
-
-            var vis = d3.select('#graph').append('svg')
-                .attr('width', '100%')
-                .attr('height', '100%')
-            .append('g')
-                .call(drag);
-
-            d3.json('./schema.json', function(json) {
-
-                var node = vis.selectAll('g.table')
-                    .data(json.tables)
-                .enter().append('svg:g')
-                    .attr('class', 'table')
-                    .attr('id', function(d) {
-                        return d.name;
-                    })
-                    .attr('transform', function(d, i) {
-                        return "translate(" + (i * blockWidth) + "," + 30 + ")";
-                    })
-                ;
-
-                var nodeG = node.append('svg:g')
-                    .attr('class', 'table-header');
-                nodeG.append('svg:rect')
-                    .attr('width', blockWidth)
-                    .attr('height', 20);
-
-                nodeG.append('text')
-                    .text(function(d) {
-                        return d.name;
-                    })
-                    .attr('dx', 7)
-                    .attr('dy', 14);
-
-                var column = node.selectAll('g.column')
-                    .data(function(d) {
-                        return d.fields;
-                    })
-                .enter().append('svg:g')
-                    .attr('class', 'column')
-                    .attr('transform', function(d, i) {
-                        return "translate(" + 0 + "," + (20 * ++i) + ")";
-                    });
-
-                column.append('svg:rect')
-                    .attr('width', blockWidth)
-                    .attr('height', 20);
-                column.append('text')
-                    .text(function(d) {
-                        return d.name + ' ' + d.type;
-                    })
-                    .attr('dx', 7)
-                    .attr('dy', 14);
-
-                /*
-                node.selectAll('text')
-                    .data(function(d) {
-                        return d.fields;
-                    })
-                .enter().append('text')
-                    .text(function(d) {
-                        return d.name;
-                    })
-                ;
-                */
-
-                //node.append('text').text(function(d) {
-                //    return d.name;
-                //});
-
-
-                /*
-              node.append("title")
-                  .text(function(d) { return d.name + (d.children ? "" : ": " + format(d.size)); });
-
-              node.append("circle")
-                  .attr("r", function(d) { return d.r; });
-
-              node.filter(function(d) { return !d.children; }).append("text")
-                  .attr("text-anchor", "middle")
-                  .attr("dy", ".3em")
-                  .text(function(d) { return d.name.substring(0, d.r / 3); });
-                  */
-            });
-        </script>
+        <div class="navbar">
+            <div class="clearfix">
+                <a href="#" id="collapse-all">collapse all</a>
+                <a href="#" id="expand-all">expand all</a>
+            </div>
+        </div>
+        <div id="svg"></div>
+        <div id="schema"></div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script src="public/jquery-ui-1.9.0.custom.js"></script>
+        <script src="public/jquery.total-storage.js"></script>
+        <script src="public/jquery.svg.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.1/underscore-min.js"></script>
+        <script src="public/dbviz.js"></script>
     </body>
 </html>
