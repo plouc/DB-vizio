@@ -7,6 +7,7 @@ $(document).ready(function() {
             tables = data.tables,
             relations = data.relations,
             $tables,
+            $columns,
             $table,
             $field,
             zIndex = 100,
@@ -124,27 +125,14 @@ $(document).ready(function() {
             '</div>');
             $table.css('zIndex', zIndex + i);
 
+            $columns = $table.find('.columns');
+
             _.each(table.fields, function(field) {
                 $field = $('<div class="field" id="' + field.id.replace('.', '--') + '">' +
                     '<h3>' + field.name + '</h3> ' +
                     '<span class="type">' + field.type + '</span>' +
                 '</div>');
-                /*
-                $field.hover(function(e) {
-                    if (linksByColumn[this.id]) {
-                        _.each(linksByColumn[this.id], function(linkMeta) {
-                            linkMeta.$node.attr('class', 'highlight');
-                        });
-                    }
-                }, function(e) {
-                    if (linksByColumn[this.id]) {
-                        _.each(linksByColumn[this.id], function(linkMeta) {
-                            linkMeta.$node.attr('class', '');
-                        });
-                    }
-                });
-                */
-                $table.find('.columns').append($field);
+                $columns.append($field);
             });
 
             if (savedState !== null && savedState[table.name]) {
