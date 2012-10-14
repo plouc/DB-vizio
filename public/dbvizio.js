@@ -14,11 +14,15 @@ var DBvizio = function(tables, relations, $container, $svgContainer) {
 
     this.$container    = $container;
     this.$svgContainer = $svgContainer;
-    this.$svgContainer.svg();
+    this.$svgContainer.svg({
+        settings: {
+            width:  '100%',
+            height: '100%'
+        }
+    });
     this.svg = this.$svgContainer.svg('get');
 
-    this.linksByTable  = {};
-    this.linksByColumn = {};
+    this.links = [];
 
     this.pathMode = 'square';
 
@@ -35,8 +39,11 @@ var DBvizio = function(tables, relations, $container, $svgContainer) {
  * @param columnId
  * @return {String}
  */
-DBvizio.prototype.colToTable = function(columnId) {
-    return columnId.substr(0, columnId.indexOf('.'));
+DBvizio.prototype.colToTable = function(columnId, sanitized) {
+
+    var separator = sanitized === true ? '--' : '.';
+
+    return columnId.substr(0, columnId.indexOf(separator));
 };
 
 /**
@@ -51,95 +58,11 @@ DBvizio.prototype.sanitizeColId = function(columnId) {
 };
 
 /**
- * Compute path definition from 2 (jQuery) dom elements
+ * Bring an elment to front using z-index
  *
- * @param $a
- * @param $b
- * @return {*}
+ * @param $target
+ * @param $elements
  */
-DBvizio.prototype.pathDefFromNodes = function($a, $b) {
-
-    var aPos = $a.offset(),
-        bPos = $b.offset(),
-        aLinkCount = 0,
-        bLinkCount = 0,
-        aWidth, bWidth,
-        aHeight, bHeight,
-        start, mid, end,
-        pathDef,
-        tmp;
-
-    if (bPos.left < aPos.left) {
-        tmp = aPos;
-        aPos = bPos;
-        bPos = tmp;
-
-        tmp = $a;
-        $a = $b;
-        $b = tmp;
-    }
-
-    aWidth  = $a.outerWidth();
-    aHeight = $a.outerHeight();
-    bWidth  = $b.outerWidth();
-    bHeight = $b.outerHeight();
-
-    if ($a.is('h2')) {
-        if (this.linksByTable[$a.parents('.table').attr('id')]) {
-            aLinkCount = this.linksByTable[$a.parents('.table').attr('id')].length;
-        }
-    } else {
-        //console.log(linksByColumn);
-        //aLinkCount = linksByColumn[$a.attr('id')].length;
-    }
-    //console.log(aLinkCount);
-
-    if ($b.is('h2')) {
-
-    } else {
-
-    }
-
-    start = {
-        x:  aPos.left,
-        xx: aPos.left + aWidth,
-        y:  aPos.top + aHeight / 2
-    };
-    end = {
-        x:  bPos.left,
-        xx: bPos.left + bWidth,
-        y:  bPos.top + bHeight / 2
-    };
-    if (end.x > start.x + aWidth) {
-        start.x = start.x + aWidth;
-    }
-
-    mid = {
-        x: start.x + (end.x - start.x) / 2,
-        y: start.y + (end.y - start.y) / 2
-    };
-    if (start.xx >= end.x) {
-        mid.x = start.x - 20;
-    }
-
-    //console.log('x:' + start.x + ' y:' + start.y + ', x:' + mid.x + ' y:' + mid.y + ', x:' + end.x + ' y:' + end.y);
-
-    if (this.pathMode === 'square') {
-        pathDef = 'M' + start.x + ',' + start.y +
-                  'H' + mid.x   +
-                  'V' + end.y   +
-                  'H' + end.x;
-    } else if (this.pathMode === 'round') {
-        pathDef = 'M' + start.x + ',' + start.y +
-                  'Q' + mid.x   + ',' + start.y + ' ' + mid.x + ',' + mid.y +
-                  'Q' + mid.x   + ',' + end.y   + ' ' + end.x + ',' + end.y;
-    } else {
-        throw new Error('invalid path mode :' + this.pathMode);
-    }
-
-    return pathDef;
-};
-
 DBvizio.prototype.sendToFront = function($target, $elements) {
 
     var group = $.makeArray($elements).sort(function(a,b) {
@@ -156,42 +79,39 @@ DBvizio.prototype.sendToFront = function($target, $elements) {
 
     $target.css('zIndex', min + group.length);
 
-    /*
-    var zIndex,
-        $element,
-        $highest = null,
-        highest = 1;
+    return this;
+};
 
-    $elements.each(function() {
+/**
+ * Fix viewport width, problem with absolute positioning
+ *
+ * @return {*}
+ */
+DBvizio.prototype.fixViewport = function() {
 
-        $element = $(this);
-        zIndex = $element.css('zIndex');
+    var $this, pos, right, bottom,
+        rightBound  = 0,
+        bottomBound = 0;
 
-        if (zIndex !== 'auto') {
-            if (zIndex > highest) {
-                $highest = $element;
-                highest = zIndex;
-            }
+    this.$tables.each(function() {
+        $this  = $(this);
+        pos    = $this.position();
+        right  = pos.left + $this.outerWidth();
+        bottom = pos.top  + $this.outerHeight();
+        if (right > rightBound) {
+            rightBound = right;
         }
-
-        console.log(highest);
-        //console.log($(this).css('zIndex'));
+        if (bottom > bottomBound) {
+            bottomBound = bottom;
+        }
     });
 
-    $element.css('zIndex', highest);
+    $('body').css({
+        width:  rightBound  + 100,
+        height: bottomBound + 100
+    });
 
-    $.fn.highestDepth = function() {
-        var $highest = null, highest = 0, zIndex;
-        this.each(function() {
-            zIndex = parseInt($(this).css('zIndex'), 10);
-            if (zIndex > highest) {
-                $highest = $(this);
-                highest  = zIndex;
-            }
-        });
-        return $highest;
-    };
-    */
+    return this;
 };
 
 /**
@@ -234,54 +154,47 @@ DBvizio.prototype.buildTables = function() {
         self.$container.append($table);
     });
 
-    self.$tables = this.$container.find('.table');
-    self.$tables
+    this.$tables = this.$container.find('.table');
+    this.$tables
         .on('mousedown', function() {
             self.sendToFront($(this), self.$tables);
-            /*
-            var $higher = $tables.highestDepth(),
-                current = parseInt($(this).css('zIndex'), 10),
-                higher  = parseInt($higher.css('zIndex'), 10);
-            if (current < higher) {
-                $(this).css('zIndex', higher);
-            }
-            */
         })
-        //.resizable()
         .draggable({
             handle: 'h2',
             drag: function(e) {
+                self.fixViewport();
                 self.updateLinks(this.id);
             },
             stop: function(e) {
+                self.fixViewport();
                 self.sendToFront($(this), self.$tables);
                 self.updateLinks(this.id);
                 self.saveState();
             }
         })
         .hover(function(e) {
-            if (self.linksByTable[this.id]) {
-                _.each(self.linksByTable[this.id], function(linkMeta) {
-                    linkMeta.$node.attr('class', 'highlight');
-                });
-            }
+            var links = self.getLinksForTable(this.id);
+            _.each(links, function(link) {
+                link.$svgPath.attr('class', 'highlight');
+            });
         }, function(e) {
-            if (self.linksByTable[this.id]) {
-                _.each(self.linksByTable[this.id], function(linkMeta) {
-                    linkMeta.$node.attr('class', '');
-                });
-            }
+            var links = self.getLinksForTable(this.id);
+            _.each(links, function(link) {
+                link.$svgPath.attr('class', '');
+            });
         });
 
-    self.$tables.find('.toggle').on('click', function(e) {
+    this.$tables.find('.toggle').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         self.toggleColumns($(this).parents('.table'));
     });
 
-    self.$tables.find('h2').on('dblclick', function(e) {
+    this.$tables.find('h2').on('dblclick', function(e) {
         self.toggleColumns($(this).parents('.table'));
     });
+
+    this.fixViewport();
 
     return this;
 };
@@ -299,48 +212,105 @@ DBvizio.prototype.buildLinks = function() {
         $targetColumn,
         targetTable,
         link,
-        linkMeta;
+        svgPath,
+        linkMeta,
+        sourceColumnId,
+        targetColumnId,
+        tablesLinksOrder  = {},
+        columnsLinksOrder = {},
+        columnsLinkCount  = {};
 
     _.each(this.relations, function(relation) {
 
-        $sourceColumn = $('#' + self.sanitizeColId(relation.source));
-        $targetColumn = $('#' + self.sanitizeColId(relation.target));
+        sourceColumnId = self.sanitizeColId(relation.source);
+        targetColumnId = self.sanitizeColId(relation.target);
+
+        $sourceColumn = $('#' + sourceColumnId);
+        $targetColumn = $('#' + targetColumnId);
 
         if ($sourceColumn.length === 1 && $targetColumn.length === 1) {
-
-            link = self.svg.path('');
-            linkMeta = {
-                $source: $sourceColumn,
-                $target: $targetColumn,
-                $node:   $(link)
-            };
 
             sourceTable = self.colToTable(relation.source);
             targetTable = self.colToTable(relation.target);
 
-            if (!self.linksByTable[sourceTable]) {
-                self.linksByTable[sourceTable] = [];
-            }
-            self.linksByTable[sourceTable].push(linkMeta);
+            svgPath = self.svg.path('');
+            linkMeta = {
+                $source: $sourceColumn,
+                $target: $targetColumn,
+                $node: $(svgPath)
+            };
 
-            if (!self.linksByColumn[self.sanitizeColId(relation.source)]) {
-                self.linksByColumn[self.sanitizeColId(relation.source)] = [];
-            }
-            self.linksByColumn[self.sanitizeColId(relation.source)].push(linkMeta);
+            link = new DBvizio.Link(
+                $('#' + sourceTable),
+                $sourceColumn,
+                $('#' + targetTable),
+                $targetColumn,
+                $(svgPath)
+            );
+            self.links.push(link);
 
-            if (!self.linksByTable[targetTable]) {
-                self.linksByTable[targetTable] = [];
-            }
-            self.linksByTable[targetTable].push(linkMeta);
 
-            if (!self.linksByColumn[self.sanitizeColId(relation.target)]) {
-                self.linksByColumn[self.sanitizeColId(relation.target)] = [];
+            if (!columnsLinksOrder[sourceColumnId]) {
+                columnsLinksOrder[sourceColumnId] = {};
             }
-            self.linksByColumn[self.sanitizeColId(relation.target)].push(linkMeta);
+            columnsLinksOrder[sourceColumnId][targetColumnId] = _.size(columnsLinksOrder[sourceColumnId]);
+
+            if (!columnsLinksOrder[targetColumnId]) {
+                columnsLinksOrder[targetColumnId] = {};
+            }
+            columnsLinksOrder[targetColumnId][sourceColumnId] = _.size(columnsLinksOrder[targetColumnId]);
+
+            if (!tablesLinksOrder[sourceTable]) {
+                tablesLinksOrder[sourceTable] = {};
+            }
+
+            if (!tablesLinksOrder[targetTable]) {
+                tablesLinksOrder[targetTable] = {};
+            }
+
+            if (!columnsLinkCount[sourceColumnId]) {
+                columnsLinkCount[sourceColumnId] = 0;
+            }
+            columnsLinkCount[sourceColumnId]++;
+
+            if (!columnsLinkCount[targetColumnId]) {
+                columnsLinkCount[targetColumnId] = 0;
+            }
+            columnsLinkCount[targetColumnId]++;
         }
     });
 
+    _.each(this.links, function(link) {
+        link.sourceColumnRelativeOrder = columnsLinksOrder[link.sourceColumn][link.targetColumn];
+        link.sourceColumnLinkCount     = columnsLinkCount[link.sourceColumn];
+        link.targetColumnRelativeOrder = columnsLinksOrder[link.targetColumn][link.sourceColumn];
+        link.targetColumnLinkCount     = columnsLinkCount[link.targetColumn];
+    });
+
+    console.log(this.links);
+    //console.log(columnsLinkCount);
+    //console.log(columnsLinksOrder, tablesLinksOrder);
+
     return this;
+};
+
+/**
+ * Get links related to given table
+ *
+ * @param tableName
+ * @return {Array}
+ */
+DBvizio.prototype.getLinksForTable = function(tableName) {
+
+    var links = [];
+
+    _.each(this.links, function(link) {
+        if (link.sourceTable === tableName || link.targetTable === tableName) {
+            links.push(link);
+        }
+    });
+
+    return links;
 };
 
 /**
@@ -351,22 +321,20 @@ DBvizio.prototype.buildLinks = function() {
  */
 DBvizio.prototype.updateLinks = function(tables) {
 
-    var self = this;
+    var self = this,
+        links,
+        processed = {};
 
-    tables = tables === undefined ? _.pluck(this.tables, 'name') : tables;
-    tables = !_.isArray(tables) ? [tables] : tables;
+    tables = tables === undefined ? _.pluck(this.tables, 'name') : (!_.isArray(tables) ? [tables] : tables);
 
     _.each(tables, function(table) {
-        if (self.linksByTable[table]) {
-            _.each(self.linksByTable[table], function(linkMeta) {
-                linkMeta.$node.attr('d', self.pathDefFromNodes(
-                    linkMeta.$source.is(':visible') ?
-                    linkMeta.$source : linkMeta.$source.parents('.table').find('h2'),
-                    linkMeta.$target.is(':visible') ?
-                    linkMeta.$target : linkMeta.$target.parents('.table').find('h2')
-                ));
-            });
-        }
+        links = self.getLinksForTable(table);
+        _.each(links, function(link) {
+            if (!processed[link.id]) {
+                link.draw();
+                processed[link.id] = true;
+            }
+        });
     });
 
     return this;
@@ -437,4 +405,138 @@ DBvizio.prototype.fetchSavedState = function() {
     this.savedState = $.totalStorage.getItem(this.storageId);
 
     return this;
+};
+
+
+
+/**
+ * DBvizio.Link constructor
+ *
+ * @param $sourceTable
+ * @param $sourceColumn
+ * @param $targetTable
+ * @param $targetColumn
+ * @param $svgPath
+ * @constructor
+ */
+DBvizio.Link = function($sourceTable, $sourceColumn,
+                        $targetTable, $targetColumn,
+                        $svgPath) {
+
+    this.$sourceTable              = $sourceTable;
+    this.sourceTable               = $sourceTable.attr('id');
+    this.$sourceColumn             = $sourceColumn;
+    this.sourceColumn              = $sourceColumn.attr('id');
+    this.sourceColumnRelativeOrder = 0;
+    this.sourceColumnLinkCount     = 0;
+    this.$targetTable              = $targetTable;
+    this.targetTable               = $targetTable.attr('id');
+    this.$targetColumn             = $targetColumn;
+    this.targetColumn              = $targetColumn.attr('id');
+    this.targetColumnRelativeOrder = 0;
+    this.targetColumnLinkCount     = 0;
+    this.$svgPath                  = $svgPath;
+
+    this.id = this.sourceColumn + '->' + this.targetColumn;
+
+    this.mode = 'square';
+};
+
+DBvizio.Link.prototype.draw = function() {
+    this.$svgPath.attr('d', this.computePath());
+};
+
+/**
+ * Compute path definition from 2 (jQuery) dom elements
+ *
+ * @return {*}
+ */
+DBvizio.Link.prototype.computePath = function() {
+
+    var $a, $b,
+        aPos, bPos,
+        aWidth, bWidth,
+        aHeight, bHeight,
+        start, mid, end,
+        aHeightMult = 0.5,
+        bHeightMult = 0.5,
+        pathDef,
+        tmp;
+
+    if (this.$sourceColumn.is(':visible')) {
+        $a = this.$sourceColumn;
+        aHeightMult = ++this.sourceColumnRelativeOrder / ++this.sourceColumnLinkCount;
+    } else {
+        $a = this.$sourceTable.find('h2');
+    }
+
+    if (this.$targetColumn.is(':visible')) {
+        $b = this.$targetColumn;
+        bHeightMult = ++this.targetColumnRelativeOrder / this.targetColumnLinkCount;
+    } else {
+        $b = this.$targetTable.find('h2');
+    }
+
+    //console.log(aHeightMult, bHeightMult);
+
+    aPos = $a.offset();
+    bPos = $b.offset();
+
+    if (bPos.left < aPos.left) {
+        tmp = $a;
+        $a = $b;
+        $b = tmp;
+
+        tmp = aPos;
+        aPos = bPos;
+        bPos = tmp;
+
+        tmp = aHeightMult;
+        aHeightMult = bHeightMult;
+        bHeightMult = tmp;
+    }
+
+    aWidth  = $a.outerWidth();
+    aHeight = $a.outerHeight();
+    bWidth  = $b.outerWidth();
+    bHeight = $b.outerHeight();
+
+    //console.log(aHeight, aHeightMult, aHeight * aHeightMult, bHeight, bHeightMult, bHeight * bHeightMult);
+
+    start = {
+        x:  aPos.left,
+        xx: aPos.left + aWidth,
+        y:  aPos.top + aHeight / 2
+    };
+    end = {
+        x:  bPos.left,
+        xx: bPos.left + bWidth,
+        y:  bPos.top + bHeight / 2
+    };
+    if (end.x > start.x + aWidth) {
+        start.x = start.x + aWidth;
+    }
+
+    mid = {
+        x: start.x + (end.x - start.x) / 2,
+        y: start.y + (end.y - start.y) / 2
+    };
+    if (start.xx >= end.x) {
+        mid.x = start.x - 20;
+    }
+
+    if (this.mode === 'square') {
+        pathDef = 'M' + start.x + ',' + start.y +
+                  'H' + mid.x   +
+                  'V' + end.y   +
+                  'H' + end.x;
+    } else if (this.mode === 'round') {
+        pathDef = 'M' + start.x + ',' + start.y +
+                  'Q' + mid.x   + ',' + start.y + ' ' + mid.x + ',' + mid.y +
+                  'Q' + mid.x   + ',' + end.y   + ' ' + end.x + ',' + end.y;
+    } else {
+        throw new Error('invalid path mode :' + this.pathMode);
+    }
+
+    return pathDef;
 };

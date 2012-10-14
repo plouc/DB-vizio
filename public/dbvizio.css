@@ -1,6 +1,6 @@
-/*
+/*****************************************
  * Utils
- */
+ *****************************************/
 .clearfix:after {
 	content: ".";
 	display: block;
@@ -20,9 +20,10 @@ html[xmlns] .clearfix {
 }
 
 
-/*
+
+/*****************************************
  * Main
- */
+ *****************************************/
 html, body {
     font-size: 11px;
     font-family: consolas, "courier new", monospace;
@@ -35,22 +36,6 @@ a {
 }
 body {
     background: #f9ffd9;
-}
-#svg, svg {
-    width: 100%;
-    height: 100%;
-}
-path {
-    stroke-width: 1.5px;
-    stroke-linecap: round;
-    stroke: #fde35b;
-    fill: none;
-    /*stroke-dasharray: 1, 3;*/
-}
-path.highlight {
-    stroke: #55aba8;
-}
-#schema {
 }
 .navbar {
     position: fixed;
@@ -85,12 +70,9 @@ path.highlight {
     top: 0;
     left: 0;
     width: 200px;
-    /*box-shadow: 0 0 4px rgba(0, 0, 0, 0.35);*/
     border-radius: 3px;
 }
 h2, .field {
-    width: 100%;
-    box-sizing: border-box;
     padding: 0 7px;
     overflow: hidden;
 }
@@ -117,10 +99,6 @@ h2 .toggle {
     right: 7px;
     width: 16px;
     height: 16px;
-    /*
-    border-radius: 2px;
-    background: #555;
-    */
     position: absolute;
     cursor: pointer;
     text-align: center;
@@ -129,9 +107,9 @@ h2 .toggle {
     color: #fff;
 }
 .field {
-    height: 22px;
-    line-height: 22px;
-    background: #fde35b;
+    height: 24px;
+    line-height: 24px;
+    background: rgba(253, 227, 91, 0.79);
     border-top: 1px solid #f4da59;
     overflow: hidden;
     font-size: 10px;
@@ -143,9 +121,36 @@ h3 {
     font-weight: normal;
 }
 .field .type {
+    margin-top: 4px;
     color: #a79041;
+    display: inline-block;
+    background: #fff593;
+    padding: 0 5px;
+    height: 16px;
+    line-height: 16px;
+    border-radius: 2px;
 }
 .field:last-child {
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
+}
+
+
+
+/*****************************************
+ * SVG
+ *****************************************/
+#svg, svg {
+    width: 100%;
+    height: 100%;
+}
+path {
+    stroke-width: 1.5px;
+    stroke-linecap: round;
+    stroke: #fde35b;
+    fill: none;
+    /*stroke-dasharray: 1, 3;*/
+}
+path.highlight {
+    stroke: #55aba8;
 }

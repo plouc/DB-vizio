@@ -5,7 +5,7 @@ $(document).ready(function() {
         var dbviz = new DBvizio(
             data.tables,
             data.relations,
-            $('#schema'),
+            $('#schema > div'),
             $('#svg')
         );
 
