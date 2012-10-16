@@ -5,12 +5,8 @@ DBvizio.Group = function(id, $tables, $svgRect) {
 
     this.id = id;
     this.$tables = {};
-
     this.$svgRect = $svgRect;
-
-    //console.log(this.$svgRect);
-
-    this.offset = 10;
+    this.offset = 15;
 
     var self = this;
 
@@ -36,7 +32,7 @@ DBvizio.Group.prototype.remove = function($table) {
     delete this.$tables[tableId];
 };
 
-DBvizio.Group.prototype.draw = function() {
+DBvizio.Group.prototype.render = function() {
 
     var self = this,
         ePos,

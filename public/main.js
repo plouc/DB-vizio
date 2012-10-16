@@ -11,12 +11,14 @@ $(document).ready(function() {
 
         var $createGroup = $('#create-group'),
             $groupCreation = $('#group-creation'),
+            $groupRemoval = $('#group-removal'),
             $groupTablePick = $('#group-table-pick');
 
         dbviz.buildTables()
              .fetchSavedState()
              .buildLinks()
-             .updateLinks()
+             .renderLinks()
+             .renderGroups()
              .fixViewport();
 
         var dialog = new Dialog($('#dialog'));
@@ -61,6 +63,7 @@ $(document).ready(function() {
                 var table = $select.val(),
                     $table = $('#' + table);
                 group.add($table);
+                group.render();
                 renderGroupTables(group, $groupTables);
                 dialog.center();
                 dbviz.saveState();
@@ -70,9 +73,30 @@ $(document).ready(function() {
         };
 
         var addGroupCmd = function(id) {
-            var $group = $('<span class="group">' + id + '</span>');
+            var $group = $('<span class="group">' +
+                id + '<span class="remove">x</span>' +
+            '</span>');
             $group.on('click', function() {
                 groupTablePick(id);
+            });
+            $group.find('.remove').on('click', function(e) {
+                e.stopPropagation();
+                dialog.setContent($groupRemoval.html());
+
+                dialog.$el.find('strong').text(id);
+
+                dialog.$el.find('.cancel').on('click', function() {
+                    dialog.close();
+                });
+
+                dialog.$el.find('.valid').on('click', function() {
+                    $group.remove();
+                    dbviz.removeGroup(id);
+                    dbviz.saveState();
+                    dialog.close();
+                });
+
+                dialog.open().center();
             });
             $createGroup.after($group);
         };

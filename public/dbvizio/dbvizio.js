@@ -51,13 +51,33 @@ DBvizio.prototype.getTableNames = function() {
  * @param $tables
  */
 DBvizio.prototype.addGroup = function(id, $tables) {
-    if (this.groups[id]) {
+    if (this.hasGroup(id) === true) {
         throw new Error('Group with id "' + id + '" already exists');
     }
 
-    var svgRect = this.svg.rect();
+    var svgRect  = this.svg.rect();
+        $svgRect = $(svgRect);
 
-    this.groups[id] = new DBvizio.Group(id, $tables, $(svgRect));
+    $svgRect.attr('class', 'group');
+
+    this.groups[id] = new DBvizio.Group(id, $tables, $svgRect);
+
+    return this;
+};
+
+/**
+ *
+ * @param id
+ * @return {*}
+ */
+DBvizio.prototype.removeGroup = function(id) {
+    if (this.hasGroup(id) === false) {
+        throw new Error('Group with id "' + id + '" does not exists');
+    }
+
+    this.groups[id].$svgRect.remove();
+
+    delete this.groups[id];
 
     return this;
 };
@@ -81,6 +101,18 @@ DBvizio.prototype.getGroup = function(id) {
     }
 
     return this.groups[id];
+};
+
+/**
+ *
+ * @return {*}
+ */
+DBvizio.prototype.renderGroups = function() {
+    _.each(this.groups, function(group) {
+        group.render();
+    });
+
+    return this;
 };
 
 /**
@@ -202,14 +234,16 @@ DBvizio.prototype.buildTables = function() {
         .draggable({
             handle: 'h2',
             drag: function(e) {
-                self.fixViewport();
-                self.updateLinks(this.id);
+                self.fixViewport()
+                    .renderLinks(this.id)
+                    .renderGroups();
             },
             stop: function(e) {
-                self.fixViewport();
-                self.sendToFront($(this), self.$tables);
-                self.updateLinks(this.id);
-                self.saveState();
+                self.fixViewport()
+                    .sendToFront($(this), self.$tables)
+                    .renderLinks(this.id)
+                    .saveState()
+                    .renderGroups();
             }
         })
         .hover(function(e) {
@@ -359,7 +393,7 @@ DBvizio.prototype.getLinksForTable = function(tableName) {
  * @param tables
  * @return {*}
  */
-DBvizio.prototype.updateLinks = function(tables) {
+DBvizio.prototype.renderLinks = function(tables) {
 
     var self = this,
         links,
@@ -405,7 +439,7 @@ DBvizio.prototype.toggleColumns = function($tables, action, update) {
 
     if (update === true) {
         $tables.each(function() {
-            self.updateLinks(this.id);
+            self.renderLinks(this.id);
         });
         this.saveState();
     }
