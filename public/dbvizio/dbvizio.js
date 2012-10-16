@@ -439,7 +439,8 @@ DBvizio.prototype.toggleColumns = function($tables, action, update) {
 
     if (update === true) {
         $tables.each(function() {
-            self.renderLinks(this.id);
+            self.renderLinks(this.id)
+                .renderGroups();
         });
         this.saveState();
     }

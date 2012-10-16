@@ -6,7 +6,7 @@ DBvizio.Group = function(id, $tables, $svgRect) {
     this.id = id;
     this.$tables = {};
     this.$svgRect = $svgRect;
-    this.offset = 15;
+    this.offset = 20;
 
     var self = this;
 
@@ -17,21 +17,43 @@ DBvizio.Group = function(id, $tables, $svgRect) {
     }
 };
 
+/**
+ *
+ * @return {Array}
+ */
 DBvizio.Group.prototype.getTableNames = function() {
     return _.keys(this.$tables);
 };
 
+/**
+ *
+ * @param $table
+ * @return {*}
+ */
 DBvizio.Group.prototype.add = function($table) {
     this.$tables[$table.attr('id')] = $table;
+
+    return this;
 };
 
+/**
+ *
+ * @param $table
+ * @return {*}
+ */
 DBvizio.Group.prototype.remove = function($table) {
 
     var tableId = _.isString($table) ? $table : $table.attr('id');
 
     delete this.$tables[tableId];
+
+    return this;
 };
 
+/**
+ *
+ * @return {*}
+ */
 DBvizio.Group.prototype.render = function() {
 
     var self = this,
@@ -74,4 +96,6 @@ DBvizio.Group.prototype.render = function() {
     });
 
     //console.log(_.size(this.$tables), top, right, bottom, left);
+
+    return this;
 };

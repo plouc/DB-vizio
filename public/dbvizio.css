@@ -146,7 +146,7 @@ h2 .toggle {
 .field {
     height: 24px;
     line-height: 24px;
-    background: rgba(253, 227, 91, 0.85);
+    background: rgba(253, 227, 91, 0.95);
     border-top: 1px solid #f4da59;
     overflow: hidden;
     font-size: 10px;
@@ -184,6 +184,15 @@ h3 {
     box-shadow: 0 0 3px rgba(0, 0, 0, 0.35);
     min-width: 200px;
     min-height: 30px;
+}
+#dialog .title {
+    margin: -10px -10px 10px -10px;
+    padding: 7px 10px;
+    display: block;
+    background: #ffac84;
+    font-weight: bold;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
 }
 #dialog input[type="text"] {
     border: none;

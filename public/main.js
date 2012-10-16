@@ -27,15 +27,24 @@ $(document).ready(function() {
 
             $wrapper.html('');
 
-            var tables = group.getTableNames();
+            var tables = group.getTableNames(),
+                $table;
 
             if (tables.length > 0) {
                 _.each(tables, function(table) {
-                    $wrapper.append('<li>' +
+                    $table = $('<li>' +
                         '<span>' +
                             table + '<span class="remove">x</span>' +
                         '</span>' +
                     '</li>');
+
+                    $table.find('.remove').on('click', function(e) {
+                        $table.remove();
+                        group.remove(table).render();
+                        dbviz.saveState();
+                    });
+
+                    $wrapper.append($table);
                 });
             }
         };
@@ -46,6 +55,8 @@ $(document).ready(function() {
                 $select;
 
             dialog.setContent($groupTablePick.html());
+
+            dialog.$el.find('.title').text(id);
 
             $select = dialog.$el.find('select');
             _.each(dbviz.getTableNames(), function(tableName) {
@@ -62,8 +73,7 @@ $(document).ready(function() {
             dialog.$el.find('.valid').on('click', function() {
                 var table = $select.val(),
                     $table = $('#' + table);
-                group.add($table);
-                group.render();
+                group.add($table).render();
                 renderGroupTables(group, $groupTables);
                 dialog.center();
                 dbviz.saveState();
@@ -91,8 +101,8 @@ $(document).ready(function() {
 
                 dialog.$el.find('.valid').on('click', function() {
                     $group.remove();
-                    dbviz.removeGroup(id);
-                    dbviz.saveState();
+                    dbviz.removeGroup(id)
+                         .saveState();
                     dialog.close();
                 });
 
@@ -129,6 +139,8 @@ $(document).ready(function() {
 
             var $input = dialog.$el.find('input[type="text"]');
 
+            $input.focus();
+
             dialog.$el.find('.cancel').on('click', function() {
                 dialog.close();
             });
@@ -143,6 +155,7 @@ $(document).ready(function() {
                     dialog.$el.find('.error').remove();
                     addGroup(groupId);
                     dialog.close();
+                    groupTablePick(groupId);
                 }
             });
         });
