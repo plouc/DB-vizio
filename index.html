@@ -6,25 +6,52 @@
         <link rel="stylesheet" type="text/css" href="public/dbvizio.css"/>
         <link rel="stylesheet" type="text/css" href="public/jquery-ui-1.9.0.custom.css"/>
         <link rel="stylesheet" type="text/css" href="public/jquery.svg.css"/>
+        <link rel="stylesheet" type="text/css" href="public/tipsy/src/stylesheets/tipsy.css"/>
     </head>
     <body>
         <div class="navbar">
             <div class="clearfix">
                 <span class="brand">DB <span>vizio</span></span>
-                <a href="#" id="collapse-all">collapse all</a>
-                <a href="#" id="expand-all">expand all</a>
+                <a href="#" class="button" id="collapse-all">collapse all</a>
+                <a href="#" class="button" id="expand-all">expand all</a>
+                <a href="#" class="button" id="create-group">new group</a>
             </div>
         </div>
         <div id="svg"></div>
         <div id="schema">
             <div></div>
         </div>
+        <div id="dialog"></div>
+
+        <div id="group-creation" class="hidden">
+            <input type="text"/>
+            <p class="actions">
+                <a class="button valid">add group</a>
+                <a class="button cancel">cancel</a>
+            </p>
+        </div>
+
+        <div id="group-table-pick" class="hidden">
+            <ul class="group-tables">
+            </ul>
+            <select name="table">
+            </select>
+            <p class="actions">
+                <a class="button valid">add table</a>
+                <a class="button cancel">done</a>
+            </p>
+        </div>
+
         <script src="public/jquery.js"></script>
         <script src="public/jquery-ui-1.9.0.custom.js"></script>
         <script src="public/jquery.total-storage.js"></script>
         <script src="public/jquery.svg.js"></script>
+        <script src="public/tipsy/src/javascripts/jquery.tipsy.js"></script>
         <script src="public/underscore.js"></script>
-        <script src="public/dbvizio.js"></script>
+        <script src="public/dbvizio/dbvizio.js"></script>
+        <script src="public/dbvizio/dbvizio.link.js"></script>
+        <script src="public/dbvizio/dbvizio.group.js"></script>
+        <script src="public/dbvizio/dbvizio.dialog.js"></script>
         <script src="public/main.js"></script>
     </body>
 </html>
