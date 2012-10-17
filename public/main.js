@@ -115,11 +115,6 @@ $(document).ready(function() {
             addGroupCmd(groupId);
         });
 
-        var addGroup = function(id) {
-            dbviz.addGroup(id).saveState();
-            addGroupCmd(id);
-        };
-
         $('#collapse-all').on('click', function(e) {
             e.preventDefault();
             dbviz.toggleColumns('*', 'collapse');
@@ -130,6 +125,20 @@ $(document).ready(function() {
         });
 
 
+        var createGroup = function(groupId) {
+            if (groupId === '') {
+                dialog.$el.prepend('<p class="error">Group id can not be empty</p>');
+            } else if (dbviz.hasGroup(groupId)) {
+                dialog.$el.prepend('<p class="error">Group <strong>' + groupId + '</strong> already exists</p>');
+            } else {
+                dialog.$el.find('.error').remove();
+                dbviz.addGroup(groupId).saveState();
+                addGroupCmd(groupId);
+                dialog.close();
+                groupTablePick(groupId);
+            }
+        };
+
         $createGroup.on('click', function(e) {
             e.preventDefault();
 
@@ -139,24 +148,20 @@ $(document).ready(function() {
 
             var $input = dialog.$el.find('input[type="text"]');
 
-            $input.focus();
+            $input.on('keypress', function(event) {
+                      if (event.which === 13) {
+                          createGroup($input.val());
+                      }
+                  })
+                  .focus();
+
 
             dialog.$el.find('.cancel').on('click', function() {
                 dialog.close();
             });
 
             dialog.$el.find('.valid').on('click', function() {
-                var groupId = $input.val();
-                if (groupId === '') {
-                    dialog.$el.prepend('<p class="error">Group id can not be empty</p>');
-                } else if (dbviz.hasGroup(groupId)) {
-                    dialog.$el.prepend('<p class="error">Group <strong>' + groupId + '</strong> already exists</p>');
-                } else {
-                    dialog.$el.find('.error').remove();
-                    addGroup(groupId);
-                    dialog.close();
-                    groupTablePick(groupId);
-                }
+                createGroup($input.val());
             });
         });
 
