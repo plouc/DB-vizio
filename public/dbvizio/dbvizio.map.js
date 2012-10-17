@@ -8,15 +8,32 @@
 DBvizio.Map = function($el, $viewport, $elements) {
 
     this.$el       = $el;
+    this.$area     = $el.find('.area');
+    this.$wrapper  = $el.find('.content');
     this.$viewport = $viewport;
     this.$elements = $elements || $();
 
+    this.scale = 0;
+
+    var self = this;
+
+    this.$area.draggable({
+        containment: this.$wrapper,
+        drag: function() {
+            var pos = self.$area.offset();
+            $(window).scrollTop(pos.top / self.scale);
+            $(window).scrollLeft(pos.left / self.scale);
+        },
+        stop: function() {
+
+        }
+    });
 };
 
 /**
  *
  * @param $element
- * @return {*}
+ * @return {DBvizio.Map}
  */
 DBvizio.Map.prototype.addElements = function($elements) {
 
@@ -28,7 +45,7 @@ DBvizio.Map.prototype.addElements = function($elements) {
 /**
  *
  * @param $element
- * @return {*}
+ * @return {DBvizio.Map}
  */
 DBvizio.Map.prototype.removeElement = function($element) {
     this.$elements.each(function() {
@@ -40,7 +57,7 @@ DBvizio.Map.prototype.removeElement = function($element) {
 
 /**
  *
- * @return {*}
+ * @return {DBvizio.Map}
  */
 DBvizio.Map.prototype.render = function() {
 
@@ -52,16 +69,15 @@ DBvizio.Map.prototype.render = function() {
         dWidth  = this.$el.outerWidth(),
         dHeight = this.$el.outerHeight(),
         widthBasedScale  = dWidth / oWidth,
-        heightBasedScale = dHeight / oHeight,
-        scale;
+        heightBasedScale = dHeight / oHeight;
 
     if (widthBasedScale <= heightBasedScale) {
-        scale = widthBasedScale;
+        this.scale = widthBasedScale;
     } else {
-        scale = heightBasedScale;
+        this.scale = heightBasedScale;
     }
 
-    this.$el.html('');
+    this.$wrapper.html('');
 
     var self = this;
 
@@ -71,18 +87,18 @@ DBvizio.Map.prototype.render = function() {
         $element = $(this);
         pos = $element.offset();
         $div = $('<div/>').css({
-            top:  pos.top * scale,
-            left: pos.left * scale,
-            width: $element.outerWidth() * scale,
-            height: $element.outerHeight() * scale
+            top:  pos.top  * self.scale,
+            left: pos.left * self.scale,
+            width: $element.outerWidth()   * self.scale,
+            height: $element.outerHeight() * self.scale
         });
-        self.$el.append($div);
+        self.$wrapper.append($div);
     });
 
-    this.$el.append($('<div class="area"/>').css({
-        width:  $(window).width()  * scale,
-        height: $(window).height() * scale
-    }));
+    this.$area.css({
+        width:  $(window).width()  * this.scale,
+        height: $(window).height() * this.scale
+    });
 
 
     return this;

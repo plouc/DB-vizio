@@ -281,14 +281,19 @@ h3 {
     z-index: 10000;
     box-shadow: 0 0 3px rgba(0, 0, 0, 0.35);
 }
-#map > * {
+#map .inner {
+    position: relative;
+}
+#map .content > * {
     position: absolute;
     background: #fde35b;
 }
-#map > .area {
+#map .area {
+    position: absolute;
     background: transparent;
     border: 1px solid #55aba8;
     box-sizing: border-box;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
 }
 
 

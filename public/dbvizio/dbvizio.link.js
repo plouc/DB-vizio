@@ -33,7 +33,7 @@ DBvizio.Link = function($sourceTable, $sourceColumn,
 
 /**
  *
- * @return {*}
+ * @return {DBvizio.Link}
  */
 DBvizio.Link.prototype.draw = function() {
     this.$svgPath.attr('d', this.computePath());
@@ -44,7 +44,7 @@ DBvizio.Link.prototype.draw = function() {
 /**
  * Compute path definition from 2 (jQuery) dom elements
  *
- * @return {*}
+ * @return {String}
  */
 DBvizio.Link.prototype.computePath = function() {
 

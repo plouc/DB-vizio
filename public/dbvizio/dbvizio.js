@@ -17,11 +17,14 @@ var DBvizio = function(tables, relations, $container, $svgContainer) {
     this.$svgContainer.svg({
         settings: {
             width:  '100%',
-            height: '100%',
-            translate: '0, 40'
+            height: '100%'
         }
     });
     this.svg = this.$svgContainer.svg('get');
+
+    this.svgGroup = this.svg.group({
+        transform: 'translate(0 40)'
+    });
 
     this.links  = [];
     this.groups = {};
@@ -49,13 +52,14 @@ DBvizio.prototype.getTableNames = function() {
  *
  * @param id
  * @param $tables
+ * @return {DBvizio}
  */
 DBvizio.prototype.addGroup = function(id, $tables) {
     if (this.hasGroup(id) === true) {
         throw new Error('Group with id "' + id + '" already exists');
     }
 
-    var svgRect  = this.svg.rect();
+    var svgRect  = this.svg.rect(this.svgGroup);
         $svgRect = $(svgRect);
 
     $svgRect.attr('class', 'group');
@@ -68,7 +72,7 @@ DBvizio.prototype.addGroup = function(id, $tables) {
 /**
  *
  * @param id
- * @return {*}
+ * @return {DBvizio}
  */
 DBvizio.prototype.removeGroup = function(id) {
     if (this.hasGroup(id) === false) {
@@ -93,7 +97,7 @@ DBvizio.prototype.hasGroup = function(id) {
 /**
  *
  * @param id
- * @return {*}
+ * @return {DBvizio}
  */
 DBvizio.prototype.getGroup = function(id) {
     if (!this.groups[id]) {
@@ -105,7 +109,7 @@ DBvizio.prototype.getGroup = function(id) {
 
 /**
  *
- * @return {*}
+ * @return {DBvizio}
  */
 DBvizio.prototype.renderGroups = function() {
     _.each(this.groups, function(group) {
@@ -134,7 +138,7 @@ DBvizio.prototype.colToTable = function(columnId, sanitized) {
  * user.id -> user--id
  *
  * @param columnId
- * @return {*}
+ * @return {String}
  */
 DBvizio.prototype.sanitizeColId = function(columnId) {
     return columnId.replace('.', '--');
@@ -145,6 +149,7 @@ DBvizio.prototype.sanitizeColId = function(columnId) {
  *
  * @param $target
  * @param $elements
+ * @return {DBvizio}
  */
 DBvizio.prototype.sendToFront = function($target, $elements) {
 
@@ -152,7 +157,7 @@ DBvizio.prototype.sendToFront = function($target, $elements) {
     	return (parseInt($(a).css('zIndex'),10) || 0) - (parseInt($(b).css('zIndex'),10) || 0);
     });
     if (!group.length) {
-        return;
+        return this;
     }
 
     var min = parseInt(group[0].style.zIndex) || 0;
@@ -168,7 +173,7 @@ DBvizio.prototype.sendToFront = function($target, $elements) {
 /**
  * Fix viewport width, problem with absolute positioning
  *
- * @return {*}
+ * @return {DBvizio}
  */
 DBvizio.prototype.fixViewport = function() {
 
@@ -199,7 +204,7 @@ DBvizio.prototype.fixViewport = function() {
 
 /**
  *
- * @return {*}
+ * @return {DBvizio}
  */
 DBvizio.prototype.buildTables = function() {
 
@@ -233,6 +238,7 @@ DBvizio.prototype.buildTables = function() {
         })
         .draggable({
             handle: 'h2',
+            addClasses: false,
             drag: function(e) {
                 self.fixViewport()
                     .renderLinks(this.id)
@@ -276,7 +282,7 @@ DBvizio.prototype.buildTables = function() {
 /**
  * Append links for each relation
  *
- * @return {*}
+ * @return {DBvizio}
  */
 DBvizio.prototype.buildLinks = function() {
 
@@ -391,7 +397,7 @@ DBvizio.prototype.getLinksForTable = function(tableName) {
  * Update link positions for the given table(s)
  *
  * @param tables
- * @return {*}
+ * @return {DBvizio}
  */
 DBvizio.prototype.renderLinks = function(tables) {
 
@@ -419,6 +425,7 @@ DBvizio.prototype.renderLinks = function(tables) {
  * @param $tables
  * @param action
  * @param update
+ * @return {DBvizio}
  */
 DBvizio.prototype.toggleColumns = function($tables, action, update) {
 
@@ -444,13 +451,15 @@ DBvizio.prototype.toggleColumns = function($tables, action, update) {
         });
         this.saveState();
     }
+
+    return this;
 };
 
 /**
  * Save current application state
  * nodes position, state (collapsed/expanded), depth
  *
- * @return {*}
+ * @return {DBvizio}
  */
 DBvizio.prototype.saveState = function() {
 
@@ -484,7 +493,7 @@ DBvizio.prototype.saveState = function() {
 /**
  * Get saved applicatiob state
  *
- * @return {*}
+ * @return {DBvizio}
  */
 DBvizio.prototype.fetchSavedState = function() {
 

@@ -6,7 +6,7 @@ DBvizio.Group = function(id, $tables, $svgRect) {
     this.id = id;
     this.$tables = {};
     this.$svgRect = $svgRect;
-    this.offset = 20;
+    this.offset = 10;
 
     var self = this;
 
@@ -28,7 +28,7 @@ DBvizio.Group.prototype.getTableNames = function() {
 /**
  *
  * @param $table
- * @return {*}
+ * @return {DBvizio.Group}
  */
 DBvizio.Group.prototype.add = function($table) {
     this.$tables[$table.attr('id')] = $table;
@@ -39,7 +39,7 @@ DBvizio.Group.prototype.add = function($table) {
 /**
  *
  * @param $table
- * @return {*}
+ * @return {DBvizio.Group}
  */
 DBvizio.Group.prototype.remove = function($table) {
 
@@ -52,7 +52,7 @@ DBvizio.Group.prototype.remove = function($table) {
 
 /**
  *
- * @return {*}
+ * @return {DBvizio.Group}
  */
 DBvizio.Group.prototype.render = function() {
 
