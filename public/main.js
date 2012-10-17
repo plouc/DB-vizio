@@ -159,5 +159,9 @@ $(document).ready(function() {
                 }
             });
         });
+
+        var map = new DBvizio.Map($('#map'), $('body'));
+        map.addElements(dbviz.$tables)
+           .render();
     });
 });
