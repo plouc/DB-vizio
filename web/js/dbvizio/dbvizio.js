@@ -232,10 +232,8 @@ DBvizio.prototype.buildTables = function() {
     });
 
     this.$tables = this.$container.find('.table');
+
     this.$tables
-        .on('mousedown', function() {
-            self.sendToFront($(this), self.$tables);
-        })
         .draggable({
             handle: 'h2',
             addClasses: false,
@@ -264,13 +262,17 @@ DBvizio.prototype.buildTables = function() {
             });
         });
 
-    this.$tables.find('.toggle').on('click', function(e) {
+    this.$container.on('mousedown', '.table', function() {
+        self.sendToFront($(this), self.$tables);
+    });
+
+    this.$container.on('click', '.toggle', function(e) {
         e.preventDefault();
         e.stopPropagation();
         self.toggleColumns($(this).parents('.table'));
     });
 
-    this.$tables.find('h2').on('dblclick', function(e) {
+    this.$container.on('dblclick', '.table h2', function(e) {
         self.toggleColumns($(this).parents('.table'));
     });
 

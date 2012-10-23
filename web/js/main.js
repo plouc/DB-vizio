@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-    $.getJSON('schema.json', function(data) {
+    $.getJSON('data/schema.json', function(data) {
 
         var dbviz = new DBvizio(
             data.tables,
