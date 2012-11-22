@@ -11,5 +11,5 @@ Installation
 
 2. Configure project
 
-    cp config.yml.sample config.yml
+    cp config.yml.sample config.yml  
     vim config.yml
